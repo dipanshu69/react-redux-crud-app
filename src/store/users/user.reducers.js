@@ -9,7 +9,6 @@ const initialState = {
 
 export const userReducer = (state = initialState, action) => {
   const { type, payload } = action;
-  console.log(payload);
 
   switch (type) {
     case USER_ACTION_TYPES.FETCH_USER_REQUEST:
@@ -28,6 +27,19 @@ export const userReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: payload,
+      };
+    case USER_ACTION_TYPES.DELETE_USER:
+    case USER_ACTION_TYPES.ADD_USER:
+    case USER_ACTION_TYPES.UPDATE_USER:
+      return {
+        ...state,
+        loading: false,
+      };
+    case USER_ACTION_TYPES.GET_SINGLE_USER:
+      return {
+        ...state,
+        user: payload,
+        loading: false,
       };
     default:
       return state;

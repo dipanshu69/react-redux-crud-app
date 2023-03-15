@@ -1,4 +1,7 @@
 import React, { useEffect } from "react";
+
+import { useNavigate } from "react-router-dom";
+
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -7,8 +10,10 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import Button from "@material-ui/core/Button";
+
 import { useSelector, useDispatch } from "react-redux";
-import { fetchUsers } from "../../store/users/user.actions";
+import { fetchUsers, deleteUser } from "../../store/users/user.actions";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -33,46 +38,95 @@ const useStyles = makeStyles({
     marginTop: 50,
     minWidth: 900,
   },
+  tableButton: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  buttonDiv: {
+    marginTop: 50,
+  },
 });
 
 const Home = () => {
+  const classes = useStyles();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { users } = useSelector((state) => state.users);
 
   useEffect(() => {
     dispatch(fetchUsers());
   }, []);
 
-  const classes = useStyles();
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete the selected user?")) {
+      dispatch(deleteUser(id));
+    }
+  };
+
+  const goToAddUser = () => {
+    navigate("/adduser");
+  };
+
+  const gotToEditUserPage = id => {
+      navigate(`/editUser/${id}`);
+  }
+
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="customized table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>Name</StyledTableCell>
-            <StyledTableCell align="left">Email</StyledTableCell>
-            <StyledTableCell align="left">Contact</StyledTableCell>
-            <StyledTableCell align="left">Address</StyledTableCell>
-            <StyledTableCell align="left">Action</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users && users.map((user) => (
-            <StyledTableRow key={user.id}>
-              <StyledTableCell component="th" scope="row">
-                {user.name}
-              </StyledTableCell>
-              <StyledTableCell align="left">{user.email}</StyledTableCell>
-              <StyledTableCell align="left">{user.phone}</StyledTableCell>
-              <StyledTableCell align="left">
-                {user.address.city}
-              </StyledTableCell>
-              <StyledTableCell align="left">{user.username}</StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <div className={classes.buttonDiv}>
+        <Button variant="contained" color="primary" onClick={goToAddUser}>
+          Add users
+        </Button>
+      </div>
+      <TableContainer component={Paper}>
+        <Table className={classes.table} aria-label="customized table">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell align="left">Email</StyledTableCell>
+              <StyledTableCell align="left">Contact</StyledTableCell>
+              <StyledTableCell align="left">Address</StyledTableCell>
+              <StyledTableCell align="center">Action</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users &&
+              users.map((user) => (
+                <StyledTableRow key={user.id}>
+                  <StyledTableCell component="th" scope="row">
+                    {user.name}
+                  </StyledTableCell>
+                  <StyledTableCell align="left">{user.email}</StyledTableCell>
+                  <StyledTableCell align="left">{user.contact}</StyledTableCell>
+                  <StyledTableCell align="left">
+                    {user.address}
+                  </StyledTableCell>
+                  <StyledTableCell
+                    align="center"
+                    className={classes.tableButton}
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => gotToEditUserPage(user.id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(user.id)}
+                      variant="contained"
+                      color="secondary"
+                    >
+                      Delete
+                    </Button>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 };
 
